@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ærø–Faaborg pendlertur</title>
+<meta name="theme-color" content="#123542">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column, read top to bottom on a phone: verdict, clothing, the two rides, ferries home. */
+:root{
+  --bg:#eef3f4; --surface:#ffffff; --ink:#10252d; --muted:#557079; --line:#d3dfe2;
+  --sea:#123542; --accent:#e0592a; --good:#1f7a4d; --warn:#a86a00; --bad:#b3261e;
+  --good-bg:#e1f2e8; --warn-bg:#fbefd6; --bad-bg:#fbe2df; --chip:#e4edef;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0b171c; --surface:#122329; --ink:#e4eef0; --muted:#8fa8b0; --line:#23393f;
+  --sea:#0a1e25; --accent:#f07a4c; --good:#5fcf94; --warn:#f0b54a; --bad:#ff8a80;
+  --good-bg:#12301f; --warn-bg:#33270c; --bad-bg:#3a1714; --chip:#1b3038; color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:18px}
+header{display:grid;gap:10px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font:700 1.6rem/1.1 var(--display);margin:0;text-wrap:balance}
+h2{font:700 1.05rem/1.2 var(--display);margin:0 0 10px;text-wrap:balance}
+.eyebrow{font:700 .72rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.daytabs{display:flex;gap:6px;flex-wrap:wrap}
+button,.btn{font:700 .9rem/1 var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:999px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+button[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:#fff}
+button:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.verdict{background:var(--sea);color:#fff;border:0;display:grid;gap:12px}
+.verdict .eyebrow{color:#9fc0ca}
+.verdict-line{font:700 1.35rem/1.2 var(--display);text-wrap:balance}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font:700 .8rem/1 var(--body);padding:7px 10px;border-radius:999px;background:var(--chip);color:var(--ink)}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+.verdict .pill{background:rgba(255,255,255,.12);color:#fff}
+.verdict .pill.warn{background:#f0b54a;color:#2a1d00} .verdict .pill.bad{background:#ff8a80;color:#3a0b07}
+ul.gear{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ul.gear li{display:grid;grid-template-columns:7.5rem 1fr;gap:10px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:8px}
+ul.gear li:last-child{border-bottom:0;padding-bottom:0}
+.gear .k{font:700 .75rem/1.4 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.legs{display:grid;gap:12px}
+.leg{display:grid;gap:10px}
+.leg-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.leg-title{font:700 1rem/1.2 var(--display)}
+.time{font:700 .9rem/1 var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.stat{background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.stat .v{font:700 1.15rem/1.1 var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat .l{font-size:.75rem;color:var(--muted)}
+.arrow{display:inline-block;transition:transform .3s}
+.wind-note{font-size:.9rem;color:var(--muted)}
+.wind-note b{color:var(--ink)}
+.ferry-status{display:grid;gap:10px}
+.ferry-cols{display:grid;gap:14px}
+.ferry-cols .eyebrow{margin-bottom:8px}
+.fstat{display:grid;gap:6px}
+.fstat .msg{font-size:.9rem;background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 12px}
+.deps li.cancel{background:var(--bad-bg)} .deps li.cancel .t{text-decoration:line-through;color:var(--bad)}
+.deps li.gone{opacity:.55}
+.deps .route{font-size:.8rem;color:var(--muted)}
+.btn.big{justify-content:center;padding:14px 16px;font-size:1rem;background:var(--sea);border-color:var(--sea);color:#fff}
+@media (min-width:560px){.ferry-cols{grid-template-columns:1fr 1fr}}
+.deps{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.deps li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg)}
+.deps li.main{outline:2px solid var(--sea);outline-offset:-2px}
+.deps .t{font:700 1.1rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.deps .s{font-size:.85rem;color:var(--muted);text-align:right}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+details summary{cursor:pointer;font:700 1rem/1.2 var(--display);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:" +";color:var(--muted)} details[open] summary::after{content:" –"}
+.form{display:grid;gap:14px;margin-top:14px}
+.row{display:grid;gap:6px}
+.row label{font-weight:700;font-size:.9rem}
+.row .hint{font-size:.8rem;color:var(--muted)}
+input[type=text],input[type=time],input[type=number]{font:500 1rem var(--mono);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.weekdays{display:flex;gap:6px;flex-wrap:wrap}
+.weekdays button{padding:9px 11px}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:12px}
+footer{font-size:.8rem;color:var(--muted)}
+footer a,.card a{color:inherit}
+@media (max-width:420px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))} ul.gear li{grid-template-columns:1fr;gap:2px}}
+@media (prefers-reduced-motion:reduce){.arrow{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1>Ærø–Faaborg pendlertur</h1>
+      <span class="eyebrow" id="updated">Henter vejr…</span>
+    </div>
+    <div class="daytabs" id="daytabs" role="group" aria-label="Vælg dag"></div>
+  </header>
+
+  <section class="card verdict" aria-live="polite">
+    <div class="eyebrow" id="v-day">—</div>
+    <div class="verdict-line" id="v-line">Henter prognosen fra DMI…</div>
+    <div class="pills" id="v-pills"></div>
+  </section>
+
+  <section class="card ferry-status">
+    <h2 id="f-title">Færgerne</h2>
+    <div class="fstat" id="f-status"></div>
+    <div class="ferry-cols">
+      <div>
+        <div class="eyebrow">Fra Ærø</div>
+        <ul class="deps" id="dep-out"></ul>
+      </div>
+      <div>
+        <div class="eyebrow">Hjem fra Fyn</div>
+        <ul class="deps" id="deps"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Tøj til dagen</h2>
+    <ul class="gear" id="gear"><li><span class="k">Venter</span><span class="muted">Kommer når vejret er hentet.</span></li></ul>
+  </section>
+
+  <section class="card">
+    <h2>Turen</h2>
+    <div class="legs" id="legs"></div>
+  </section>
+
+  <section class="card">
+    <details id="settings">
+      <summary>Indstillinger</summary>
+      <div class="form">
+        <div class="row">
+          <label>Pendlerdage</label>
+          <div class="weekdays" id="wd"></div>
+        </div>
+        <div class="grid2">
+          <div class="row"><label for="s-morning">Fast færge ud (Søby)</label><input type="time" id="s-morning"></div>
+          <div class="row"><label for="s-home">Fast færge hjem (Faaborg)</label><input type="time" id="s-home"></div>
+        </div>
+        <div class="grid2">
+          <div class="row"><label for="s-altout">Ærøskøbing → Svendborg</label><input type="text" id="s-altout" placeholder="05:25, 06:25"></div>
+          <div class="row"><label for="s-althome">Svendborg → Ærøskøbing</label><input type="text" id="s-althome" placeholder="16:00, 17:00"></div>
+        </div>
+        <div class="row">
+          <label for="s-deps">Andre afgange Faaborg → Søby</label>
+          <input type="text" id="s-deps" placeholder="fx 17:45">
+          <span class="hint">Tider adskilt af komma. Ret dem, når sejlplanen skifter.</span>
+        </div>
+        <div class="grid2">
+          <div class="row"><label for="s-r1">Cykeltid Ærøskøbing–Søby (min)</label><input type="number" id="s-r1" min="10" max="120"></div>
+          <div class="row"><label for="s-r2">Cykeltid Faaborg–kontoret (min)</label><input type="number" id="s-r2" min="5" max="90"></div>
+        </div>
+        <div class="grid2">
+          <div class="row"><label for="s-cross">Overfart Søby–Faaborg (min)</label><input type="number" id="s-cross" min="20" max="120"></div>
+          <div class="row"><label for="s-cross2">Overfart Ærøskøbing–Svendborg (min)</label><input type="number" id="s-cross2" min="20" max="120"></div>
+        </div>
+        <div class="grid2">
+          <div class="row"><label for="s-off">Kuldefølsomhed (°C)</label><input type="number" id="s-off" min="-5" max="5" step="1">
+            <span class="hint">+2 hvis du fryser let, −2 hvis du hurtigt får varmt.</span></div>
+        </div>
+        <button type="button" id="save">Gem indstillinger</button>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    Vejrdata: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> med DMI's HARMONIE-model. Tøjforslag er tommelfingerregler. Aflysninger ses hos <a href="https://www.aeroe-ferry.dk/da" target="_blank" rel="noopener">Ærøfærgerne</a>.
+  </footer>
+</div>
+
+<script>
+const PLACES={
+  aeroskobing:{name:"Ærøskøbing",lat:54.888,lon:10.411},
+  soby:{name:"Søby",lat:54.940,lon:10.262},
+  faaborg:{name:"Faaborg",lat:55.095,lon:10.243},
+  sollerup:{name:"Sollerupvej 24",lat:55.135,lon:10.285}
+};
+const DEFAULTS={days:[1,3,5],morning:"07:20",home:"14:30",deps:"",altOut:"05:25, 06:25",altHome:"16:00, 17:00",r1:40,r2:25,cross:60,cross2:75,off:0};
+const WD=["søn","man","tir","ons","tor","fre","lør"];
+const WD_LONG=["søndag","mandag","tirsdag","onsdag","torsdag","fredag","lørdag"];
+let S=load(); let DATA=null; let chosen=null;
+
+function load(){try{return Object.assign({},DEFAULTS,JSON.parse(localStorage.getItem("pendler")||"{}"))}catch(e){return {...DEFAULTS}}}
+function save(){try{localStorage.setItem("pendler",JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id);
+const toMin=t=>{const [h,m]=t.split(":").map(Number);return h*60+m};
+const fmt=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")};
+function cphNow(){
+  const p=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Copenhagen",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  return {date:`${p.year}-${p.month}-${p.day}`,min:+p.hour*60+ +p.minute};
+}
+const addDays=(d,n)=>{const x=new Date(d+"T12:00:00Z");x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+const weekday=d=>new Date(d+"T12:00:00Z").getUTCDay();
+function bearing(a,b){
+  const r=Math.PI/180,y=Math.sin((b.lon-a.lon)*r)*Math.cos(b.lat*r),
+    x=Math.cos(a.lat*r)*Math.sin(b.lat*r)-Math.sin(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lon-a.lon)*r);
+  return (Math.atan2(y,x)/r+360)%360;
+}
+const COMPASS=["N","NNØ","NØ","ØNØ","Ø","ØSØ","SØ","SSØ","S","SSV","SV","VSV","V","VNV","NV","NNV"];
+const compass=d=>COMPASS[Math.round(d/22.5)%16];
+
+async function fetchWeather(){
+  const lats=[PLACES.aeroskobing,PLACES.soby,PLACES.faaborg,PLACES.sollerup];
+  const url="https://api.open-meteo.com/v1/forecast?latitude="+lats.map(p=>p.lat).join(",")+"&longitude="+lats.map(p=>p.lon).join(",")+
+    "&hourly=temperature_2m,apparent_temperature,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,weather_code"+
+    "&daily=sunrise,sunset&models=dmi_seamless&wind_speed_unit=ms&timezone=Europe%2FCopenhagen&forecast_days=4";
+  const r=await fetch(url); if(!r.ok) throw new Error("HTTP "+r.status);
+  const j=await r.json(); const arr=Array.isArray(j)?j:[j];
+  return {aeroskobing:arr[0],soby:arr[1],faaborg:arr[2],sollerup:arr[3]};
+}
+
+// Hourly values for a place between two times (minutes) on a date.
+function window_(place,date,from,to){
+  const h=DATA[place].hourly,out=[];
+  for(let m=Math.floor(from/60)*60;m<=to;m+=60){
+    const i=h.time.indexOf(`${date}T${fmt(m)}`); if(i<0) continue;
+    out.push({t:h.temperature_2m[i],f:h.apparent_temperature[i],p:h.precipitation[i]??0,w:h.wind_speed_10m[i],g:h.wind_gusts_10m[i],d:h.wind_direction_10m[i],c:h.weather_code[i]});
+  }
+  return out;
+}
+function summarize(rows){
+  if(!rows.length) return null;
+  const avg=k=>rows.reduce((s,r)=>s+r[k],0)/rows.length;
+  // Vector-average wind direction.
+  const r=Math.PI/180,sx=rows.reduce((s,x)=>s+Math.sin(x.d*r),0),cx=rows.reduce((s,x)=>s+Math.cos(x.d*r),0);
+  return {t:avg("t"),f:Math.min(...rows.map(x=>x.f)),p:Math.max(...rows.map(x=>x.p)),w:avg("w"),g:Math.max(...rows.map(x=>x.g)),d:(Math.atan2(sx,cx)/r+360)%360};
+}
+function sun(place,date){const d=DATA[place].daily,i=d.time.indexOf(date);if(i<0)return null;return {rise:toMin(d.sunrise[i].slice(11)),set:toMin(d.sunset[i].slice(11))}}
+
+function legs(date){
+  const mo=toMin(S.morning),ho=toMin(S.home),c=+S.cross;
+  const L=[
+    {id:"a",title:"Ærøskøbing → Søby",kind:"bike",place:"aeroskobing",from:PLACES.aeroskobing,to:PLACES.soby,start:mo-S.r1-10,end:mo-10},
+    {id:"b",title:"Færge Søby → Faaborg",kind:"ferry",place:"soby",start:mo,end:mo+c},
+    {id:"c",title:"Faaborg → kontoret",kind:"bike",place:"faaborg",from:PLACES.faaborg,to:PLACES.sollerup,start:mo+c+5,end:mo+c+5+ +S.r2},
+    {id:"d",title:"Kontoret → Faaborg",kind:"bike",place:"sollerup",from:PLACES.sollerup,to:PLACES.faaborg,start:ho-S.r2-10,end:ho-10},
+    {id:"e",title:"Færge Faaborg → Søby",kind:"ferry",place:"faaborg",start:ho,end:ho+c},
+    {id:"f",title:"Søby → Ærøskøbing",kind:"bike",place:"soby",from:PLACES.soby,to:PLACES.aeroskobing,start:ho+c+5,end:ho+c+5+ +S.r1}
+  ];
+  const s=sun("faaborg",date);
+  for(const l of L){
+    l.w=summarize(window_(l.place,date,l.start,l.end));
+    if(l.kind==="bike"&&l.w){
+      const b=bearing(l.from,l.to),rel=((l.w.d-b)+540)%360-180; // 0 = wind straight in the face
+      l.head=l.w.w*Math.cos(rel*Math.PI/180); l.cross=Math.abs(l.w.w*Math.sin(rel*Math.PI/180)); l.bearing=b;
+      l.dark=s?(l.start<s.rise+15||l.end>s.set-15):false;
+    }
+  }
+  return L;
+}
+
+function clothing(L){
+  const bikes=L.filter(l=>l.kind==="bike"&&l.w);
+  if(!bikes.length) return null;
+  const off=+S.off||0;
+  const coldest=Math.min(...bikes.map(l=>l.w.f))-off;
+  const warmest=Math.max(...bikes.map(l=>l.w.f))-off;
+  const rainMax=Math.max(...bikes.map(l=>l.w.p));
+  const headMax=Math.max(...bikes.map(l=>l.head));
+  const dark=bikes.some(l=>l.dark);
+  const g=[];
+  const top=coldest<0?"Vinterjakke over en uldtrøje":coldest<5?"Varm, vindtæt jakke og en langærmet trøje under":coldest<10?"Softshell eller let jakke over en langærmet trøje":coldest<15?"Langærmet trøje og en vindvest":coldest<20?"T-shirt med en tynd trøje i tasken":"T-shirt";
+  const legs_=coldest<0?"Vinterbukser eller lange underbukser under":coldest<10?"Lange bukser":coldest<17?"Lange bukser eller knickers":"Shorts er fint";
+  const hands=coldest<2?"Vanter eller tykke handsker":coldest<8?"Tynde, vindtætte handsker":coldest<12?"Tynde handsker til morgenturen":"Ingen";
+  const head=coldest<2?"Hue under hjelmen og en buff":coldest<7?"Pandebånd eller tynd hue og en buff":"Ingen";
+  g.push(["Overkrop",top],["Ben",legs_],["Hænder",hands],["Hoved",head]);
+  if(rainMax>=1) g.push(["Regn","Regnjakke, regnbukser og skoovertræk"]);
+  else if(rainMax>=0.2) g.push(["Regn","Regnjakke, og regnbukser i tasken"]);
+  if(coldest<3&&rainMax<1) g.push(["Fødder","Uldsokker, og skoovertræk hvis det er vådt"]);
+  if(warmest-coldest>=5) g.push(["Lag","Det er "+Math.round(warmest-coldest)+" grader varmere på hjemturen. Pak et lag i tasken"]);
+  if(dark) g.push(["Lys","For- og baglygte. Det er mørkt på en del af turen"]);
+  if(headMax>=6) g.push(["Vind","Vindtæt yderlag. Regn med ekstra tid i modvinden"]);
+  return {g,coldest,rainMax,headMax,dark};
+}
+
+const isCommute=d=>S.days.includes(weekday(d));
+function pickDefaultDay(){
+  const now=cphNow();
+  // After the home ferry has left, look at the next day.
+  let d=now.min>toMin(S.home)+30?addDays(now.date,1):now.date;
+  for(let i=0;i<7&&!isCommute(d);i++) d=addDays(d,1);
+  return d;
+}
+
+function renderTabs(){
+  const now=cphNow(),wrap=$("daytabs"); wrap.innerHTML="";
+  for(let i=0;i<4;i++){
+    const d=addDays(now.date,i),b=document.createElement("button");
+    b.type="button"; b.textContent=(i===0?"I dag":i===1?"I morgen":WD_LONG[weekday(d)].replace(/^./,c=>c.toUpperCase()))+(isCommute(d)?"":" · fri");
+    b.setAttribute("aria-pressed",d===chosen); b.onclick=()=>{chosen=d;render()}; wrap.append(b);
+  }
+}
+
+const arrow=d=>`<span class="arrow" style="transform:rotate(${(d+180)%360}deg)" aria-hidden="true">↑</span>`;
+const n1=x=>Math.round(x);
+function render(){
+  renderTabs(); renderFerry();
+  if(!DATA) return;
+  const date=chosen,L=legs(date),cl=clothing(L),dn=new Date(date+"T12:00:00Z");
+  $("v-day").textContent=WD_LONG[weekday(date)]+" "+dn.getUTCDate()+". "+dn.toLocaleDateString("da-DK",{month:"long",timeZone:"UTC"})+(isCommute(date)?"":" · ikke en pendlerdag");
+  if(!cl){$("v-line").textContent="Prognosen dækker ikke den dag endnu.";$("v-pills").innerHTML="";$("gear").innerHTML="";$("legs").innerHTML="";return}
+  const t=cl.coldest,word=t<0?"Frostkoldt":t<5?"Koldt":t<10?"Køligt":t<15?"Mildt":t<20?"Behageligt":"Varmt";
+  const rain=cl.rainMax>=1?"og vådt":cl.rainMax>=0.2?"med byger":"og tørt";
+  $("v-line").textContent=`${word} ${rain}. Det føles som ${n1(Math.min(...L.filter(l=>l.kind==="bike"&&l.w).map(l=>l.w.f)))}° når det er koldest.`;
+  const pills=[];
+  if(cl.rainMax>=0.2) pills.push(`<span class="pill warn">Regn op til ${cl.rainMax.toFixed(1)} mm/t</span>`);
+  if(cl.headMax>=6) pills.push(`<span class="pill warn">Modvind ${n1(cl.headMax)} m/s</span>`);
+  if(cl.dark) pills.push(`<span class="pill">Lygter på</span>`);
+  $("v-pills").innerHTML=pills.join("");
+  $("gear").innerHTML=cl.g.map(([k,v])=>`<li><span class="k">${k}</span><span>${v}</span></li>`).join("");
+
+  $("legs").innerHTML=L.map(l=>{
+    if(l.kind==="ferry") return `<div class="leg"><div class="leg-head"><span class="leg-title">⛴ ${l.title}</span><span class="time">${fmt(l.start)}–${fmt(l.end)}</span></div></div>`;
+    if(!l.w) return "";
+    const st=[
+      [`${n1(l.w.t)}°`,`føles ${n1(l.w.f)}°`],
+      [`${l.w.p.toFixed(1)}`,"mm regn/t"],
+      [`${arrow(l.w.d)} ${n1(l.w.w)}`,`m/s fra ${compass(l.w.d)}`],
+      [`${n1(l.w.g)}`,"m/s i stød"]
+    ].map(([v,lab])=>`<div class="stat"><div class="v">${v}</div><div class="l">${lab}</div></div>`).join("");
+    let note="";
+    if(l.kind==="bike"){
+      const h=l.head, kind=h>=2?`<b>Modvind</b> ${n1(h)} m/s`:h<=-2?`<b>Medvind</b> ${n1(-h)} m/s`:l.cross>=4?`<b>Sidevind</b> ${n1(l.cross)} m/s`:"Næsten ingen vind at mærke";
+      note=`<div class="wind-note">${kind}${l.dark?" · mørkt":""}</div>`;
+    }
+    return `<div class="leg"><div class="leg-head"><span class="leg-title">${l.kind==="ferry"?"⛴ ":"🚲 "}${l.title}</span><span class="time">${fmt(l.start)}–${fmt(l.end)}</span></div><div class="stats">${st}</div>${note}</div>`;
+  }).join("");
+
+
+}
+
+let STATUS=undefined; // undefined = not loaded yet, null = no status file
+const isCancelled=(date,from,m)=>!!STATUS?.cancelled?.some(c=>c.date===date&&c.from===from&&toMin(c.time)===m);
+const times=str=>[...new Set((str||"").split(/[ ,;]+/).map(x=>x.replace(".",":")).filter(x=>/^\d{1,2}:\d{2}$/.test(x)).map(x=>toMin(x.padStart(5,"0"))))];
+function depItem(date,d,now){
+  const cancel=isCancelled(date,d.from,d.m), left=date===now.date?d.m-now.min:null;
+  let s=left===null?"":left<0?"sejlet":left<120?`om ${left} min`:`om ${Math.floor(left/60)} t ${left%60} min`;
+  if(cancel) s="AFLYST";
+  else if(d.main) s="din faste"+(s?" · "+s:"");
+  return `<li class="${d.main?"main ":""}${cancel?"cancel ":""}${left!==null&&left<0?"gone":""}"><span><span class="t">${fmt(d.m)}</span><br><span class="route">${d.from} → ${d.to}</span></span><span class="s"><b>${s}</b>${s?"<br>":""}i ${d.to} ${fmt(d.m+d.cross)}</span></li>`;
+}
+function renderFerry(){
+  const date=chosen,now=cphNow();
+  $("f-title").textContent=date===now.date?"Færgerne i dag":"Færgerne "+WD_LONG[weekday(date)];
+  const f=$("f-status"), link=`<a class="btn big" href="https://www.aeroe-ferry.dk/da" target="_blank" rel="noopener">Tjek om færgerne sejler ↗</a>`;
+  if(!STATUS) f.innerHTML=link;
+  else{
+    const t=new Date(STATUS.checked).toLocaleString("da-DK",{weekday:"short",hour:"2-digit",minute:"2-digit",timeZone:"Europe/Copenhagen"});
+    const mine=(STATUS.cancelled||[]).filter(c=>c.date===date);
+    const pill=!STATUS.ok?`<span class="pill warn">Driftsinfo kunne ikke læses ved sidste tjek (${t})</span>`
+      :mine.length?`<span class="pill bad">${mine.length} afgang${mine.length>1?"e":""} aflyst</span>`
+      :`<span class="pill good">Ingen aflysninger · tjekket ${t}</span>`;
+    f.innerHTML=pill+(STATUS.message?`<div class="msg">${STATUS.message.replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}</div>`:"")+link;
+  }
+  const c1=+S.cross,c2=+S.cross2,mo=toMin(S.morning),ho=toMin(S.home);
+  const out=[{from:"Søby",to:"Faaborg",m:mo,cross:c1,main:true},...times(S.altOut).map(m=>({from:"Ærøskøbing",to:"Svendborg",m,cross:c2}))].sort((a,b)=>a.m-b.m);
+  const home=[{from:"Faaborg",to:"Søby",m:ho,cross:c1,main:true},...times(S.deps).filter(m=>m!==ho).map(m=>({from:"Faaborg",to:"Søby",m,cross:c1})),
+    ...times(S.altHome).map(m=>({from:"Svendborg",to:"Ærøskøbing",m,cross:c2}))].sort((a,b)=>a.m-b.m);
+  $("dep-out").innerHTML=out.map(d=>depItem(date,d,now)).join("");
+  $("deps").innerHTML=home.map(d=>depItem(date,d,now)).join("");
+}
+async function fetchStatus(){
+  try{const r=await fetch("status.json?"+Date.now(),{cache:"no-store"});STATUS=r.ok?await r.json():null}catch(e){STATUS=null}
+  renderFerry();
+}
+
+function fillSettings(){
+  $("s-morning").value=S.morning;$("s-home").value=S.home;$("s-deps").value=S.deps;$("s-altout").value=S.altOut;$("s-althome").value=S.altHome;$("s-cross2").value=S.cross2;
+  $("s-r1").value=S.r1;$("s-r2").value=S.r2;$("s-cross").value=S.cross;$("s-off").value=S.off;
+  const wd=$("wd");wd.innerHTML="";
+  [1,2,3,4,5,6,0].forEach(d=>{const b=document.createElement("button");b.type="button";b.textContent=WD[d];
+    b.setAttribute("aria-pressed",S.days.includes(d));
+    b.onclick=()=>{const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on)};b.dataset.d=d;wd.append(b)});
+}
+$("save").onclick=()=>{
+  S.morning=$("s-morning").value||DEFAULTS.morning; S.home=$("s-home").value||DEFAULTS.home; S.deps=$("s-deps").value; S.altOut=$("s-altout").value; S.altHome=$("s-althome").value; S.cross2=+$("s-cross2").value||DEFAULTS.cross2;
+  S.r1=+$("s-r1").value||DEFAULTS.r1; S.r2=+$("s-r2").value||DEFAULTS.r2; S.cross=+$("s-cross").value||DEFAULTS.cross; S.off=+$("s-off").value||0;
+  S.days=[...$("wd").children].filter(b=>b.getAttribute("aria-pressed")==="true").map(b=>+b.dataset.d);
+  save(); chosen=pickDefaultDay(); render(); $("save").textContent="Gemt ✓"; setTimeout(()=>$("save").textContent="Gem indstillinger",1500);
+};
+
+async function start(){
+  fillSettings(); chosen=pickDefaultDay(); render(); fetchStatus();
+  try{
+    DATA=await fetchWeather();
+    $("updated").textContent="Opdateret "+new Date().toLocaleTimeString("da-DK",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Copenhagen"});
+    render();
+  }catch(e){
+    $("v-line").innerHTML=`<span class="err">Vejret kunne ikke hentes (${e.message}). Tjek forbindelsen og genindlæs siden.</span>`;
+    $("updated").textContent="Ikke opdateret";
+  }
+}
+start();
+</script>
+</body>
+</html>
